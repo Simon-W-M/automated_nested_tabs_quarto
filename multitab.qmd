@@ -1,0 +1,86 @@
+---
+title: "nested_tabs"
+format: html
+editor: visual
+---
+
+# Automated nested quarto tabs
+
+We are going to create some dummy data
+
+```{r}
+#| echo: true
+#| warning: false
+
+library(tidyverse)
+
+df <- data.frame(
+  org = rep_len(c('a', 'a', 'a', 'a', 'a', 'a', 'b', 'b', 'b', 'b', 'b', 'b'), 12),
+  kpi = rep_len(seq(1:6), 12),
+  x = rnorm(12,100,25),
+  y = rnorm(12,150,20)
+) |>
+  mutate(kpi = paste0('kpi', kpi))
+
+plot_fun <- function(data, org_i, kpi_j) {
+  data |>
+    filter(org == org_i,
+           kpi == kpi_j) |>
+    ggplot(aes(x=x, y=y)) +
+    geom_point()
+}
+
+# plot test
+#plot_fun(df,'a', 1)
+
+list_of_orgs <- unique(df$org)
+list_of_kpis <- unique(df$kpi)
+
+```
+
+
+# Next
+
+Next we want to create a tab and chart per site and for each KPI under that site.
+
+in principle you could use this method to create multiple layers of nested tabs
+
+```{r}
+#| results: asis
+#| echo: false
+#| warning: false
+
+
+cat('::: {.panel-tabset}  \n\n')
+
+
+for (i in list_of_orgs) {
+
+  cat('## Tab ',i,'   \n\n')
+
+  cat('::: {.panel-tabset}  \n\n') 
+  
+  for (j in list_of_kpis) {
+      cat('### Tab',i, j,'   \n')
+      p <- plot_fun(df, i , j)
+      print(p)
+      cat('\n')
+      cat('\n')
+  }
+
+cat('::: \n\n')
+  
+}
+cat('::: \n\n')
+
+
+```
+
+#  Ta da!
+
+
+
+
+
+
+
